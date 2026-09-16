@@ -1,0 +1,1 @@
+"""Zentraly climate device class."""

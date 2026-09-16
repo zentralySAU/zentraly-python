@@ -1,0 +1,1 @@
+"""Zentraly switch device class."""

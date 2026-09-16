@@ -1,0 +1,6 @@
+This package was extracted from the Zentraly integration developed in the
+Home Assistant Core fork https://github.com/diazmanuel/Zentraly.
+Baseline: 4d254fd7a55021d974a5b27fa873e043aae76aeb.
+Home Assistant Core is distributed under the Apache License, Version 2.0.
+Existing copyright and license notices remain applicable.
+Package name, remote repository and publisher are provisional.
