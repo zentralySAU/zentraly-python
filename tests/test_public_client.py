@@ -4,11 +4,22 @@ import asyncio
 from typing import Any
 
 import aiohttp
+import pytest
 from aiohttp import web
 
-from zentraly import ZentralyApi, create_device
-from zentraly.device_classes.number.api import ZentralyNumberApi
-from zentraly.device_classes.number.capabilities import NumberCapability
+from zentraly import (
+    DeviceModel,
+    NumberCapability,
+    ZentralyApi,
+    ZentralyNumberApi,
+    ZentralyValidationError,
+    create_device,
+    get_device_model,
+    get_max_child_devices,
+    is_allowed_child_device,
+    supports_child_devices,
+    supports_zeroconf_setup,
+)
 
 
 async def test_read_write_and_report_over_websocket() -> None:
@@ -93,6 +104,13 @@ async def test_read_write_and_report_over_websocket() -> None:
                     await client.async_connect()
                     await connected.wait()
                     assert await number.async_get_temperature_offset() == -1.2
+                    assert number.get_range(NumberCapability.TEMPERATURE_OFFSET) == (
+                        -6,
+                        6,
+                        0.1,
+                    )
+                    with pytest.raises(ZentralyValidationError):
+                        await number.async_set_temperature_offset(7)
                     assert await number.async_set_temperature_offset(2.3)
                     await reported.wait()
                     assert observed[NumberCapability.TEMPERATURE_OFFSET] == 2.3
@@ -110,3 +128,24 @@ async def test_read_write_and_report_over_websocket() -> None:
         for socket in tuple(sockets):
             await socket.close()
         await runner.cleanup()
+
+
+def test_catalog_and_device_factory_without_connection() -> None:
+    """An application can admit a child and create its runtime through public imports."""
+    parent_id = "ZTTIN0100000001"
+    child_id = "ZTBIN0100000002"
+    client = ZentralyApi("192.0.2.1", 80, "test-secret", parent_id)
+    assert get_device_model(parent_id) is DeviceModel.ZTTIN
+    assert supports_zeroconf_setup(parent_id)
+    assert supports_child_devices(parent_id)
+    assert get_max_child_devices(parent_id) == 1
+    assert is_allowed_child_device(parent_id, child_id)
+    assert not supports_zeroconf_setup(child_id)
+    parent = create_device(client, parent_id, "aabbccddeeff")
+    child = create_device(client, child_id, "112233445566")
+    assert parent.api is child.api is client
+    assert child.device_model is DeviceModel.ZTBIN
+    assert child.mac == "112233445566"
+    assert not client.connected
+    with pytest.raises(ValueError, match="Unsupported Zentraly model"):
+        create_device(client, "UNKNOWN", "112233445566")

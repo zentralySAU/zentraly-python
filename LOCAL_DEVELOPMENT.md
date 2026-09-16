@@ -48,8 +48,9 @@ No new secrets or default hardware credentials are provided.
 
 270 existing test cases were retained across two suites: 190 in HA and 80 in the
 library. Five new cases cover session ownership and the public API end-to-end
-against a local WebSocket server. The library total is 85. No physical-device
-acceptance test has been performed for this extraction yet.
+against a local WebSocket server. The extraction had 85 library cases. The public API adds one topology/factory
+case and extends the existing WebSocket test; the total is now 86. The user has confirmed successful physical-device acceptance tests for this
+extraction. The tested model/firmware matrix was not specified.
 
 The source distribution builds a wheel in isolation. Both pass strict Twine
 metadata checks. The wheel includes py.typed and was installed and tested in a
@@ -76,6 +77,24 @@ git -C /workspaces/Zentraly worktree add --detach /tmp/zentraly-stable zentraly-
 ```
 
 The standalone repository can later be moved outside Core without changing Python
-imports. Finalize project name, owner and URLs before configuring publishing;
+imports. The package name is zentraly. Finalize owner and URLs before configuring publishing;
 README.md describes the guarded manual release workflow. Never publish the local
 placeholder version.
+
+## Documentation and planned account migration
+
+The current Spanish manuals are under `../zentraly_outputs/documentos/`, including
+`arquitectura.tex/pdf`, `biblioteca.tex/pdf` and `pendientes_publicacion.md`. They
+cover the extracted architecture. This relative location belongs to the local
+workspace; it is not a runtime or packaging dependency.
+
+The agreed sequence is documentation/review, a Core extraction commit and draft
+PR, then transfer of the existing fork to a new GitHub account and creation of
+separate library and documentation repositories. Destination and final names
+are undecided. No remote or account transfer has been performed. The draft must
+remain unmergeable until the dependency is published and tested from PyPI.
+
+The public contract is implemented through root exports and documented in
+PUBLIC_API.md. HA production code now imports only from the package root. Existing
+module imports retain class/enum identity. The name is zentraly; version
+0.0.0.dev0 remains local and must not be published. No protocol change was made.

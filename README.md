@@ -1,7 +1,7 @@
 # Zentraly Python client (local development)
 
 Independent asynchronous device library extracted from the Zentraly integration.
-Name and owner have not been finalized. Version 0.0.0.dev0 is local only.
+The distribution and import name are zentraly; the owner is not finalized. Version 0.0.0.dev0 is local only.
 Python 3.14 or newer is required. No Home Assistant dependency.
 
 ## Installation and development
@@ -28,8 +28,7 @@ import asyncio
 import os
 
 from aiohttp import ClientSession
-from zentraly import ZentralyApi, create_device
-from zentraly.device_classes.number.api import ZentralyNumberApi
+from zentraly import ZentralyApi, ZentralyNumberApi, create_device
 
 
 async def main():
@@ -68,8 +67,9 @@ asyncio.run(main())
 
 Capability enums and command contracts live under `zentraly.device_classes`.
 Device implementations and topology live under `zentraly.devices`; catalog
-helpers are in `zentraly.devices.catalog`. The root exports the client, runtime
-device and factory. Home Assistant entity classes are not part of this package.
+helpers are in `zentraly.devices.catalog`. The root exports client/runtime, capability APIs/enums, semantic types, model
+helpers and errors. Use these imports; see [PUBLIC_API.md](PUBLIC_API.md) for the
+compatibility and lifecycle contract. Home Assistant entity classes are not part of this package.
 
 Children use `create_device(parent_client, child_id, child_mac)` and share the
 parent connection. `async_validate_child_device` validates them on that connection;
@@ -102,7 +102,8 @@ close their own sessions. HA always supplies its shared session.
 
 ## Release checklist (not yet authorized)
 
-1. Finalize available distribution name, owner, repository URL and project metadata.
+1. Confirm PyPI availability of the chosen name zentraly and finalize owner,
+   repository URL and project metadata.
    The Python import name and distribution name may differ; keep imports stable.
 2. Review licensing and retained attribution. The extraction retains Apache-2.0.
 3. Choose a release version, update pyproject.toml and changelog, run both library
@@ -120,3 +121,18 @@ The workflows are prepared for the future standalone repository. While this
 folder is ignored inside the HA checkout they do not run on GitHub. There is no
 remote or PyPI project configured yet. A TestPyPI rehearsal is optional and must
 be configured separately before use; this workflow targets real PyPI.
+
+## Project status and ownership
+
+The user has reported successful physical-device tests after extraction; model
+and firmware coverage were not specified. Automated evidence remains 190 HA
+cases and 86 standalone library cases, also verified against built wheels.
+
+A move to a new GitHub account is planned before publication. The existing HA
+fork will be transferred, while this independent Git history will be published
+in a separate library repository. Documentation/Excel/backups will have a
+separate home; ignored files are not included in a Core push.
+
+Root imports, results, errors, units and listener/session lifecycle are documented
+in PUBLIC_API.md. Existing module imports remain available in this change.
+This Python API requires no HTTP server or Home Assistant.
