@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.0.0.dev0 — unreleased
+## 0.1.0 — 2026-09-16
 
 - Extract Zentraly transport, client, commands, device catalog, runtime and
   capability APIs from Home Assistant without changing the device protocol.

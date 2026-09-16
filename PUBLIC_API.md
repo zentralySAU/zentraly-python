@@ -1,7 +1,6 @@
 # Zentraly public Python API
 
-Distribution and import name: **zentraly**. Version `0.0.0.dev0` is still local
-and unpublished. This defines the consumer contract for the first release.
+Distribution and import name: **zentraly**. This document defines the public consumer contract for release `0.1.0`.
 
 ## Supported imports
 

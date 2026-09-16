@@ -1,10 +1,17 @@
-# Zentraly Python client (local development)
+# Zentraly Python client
 
 Independent asynchronous device library extracted from the Zentraly integration.
-The distribution and import name are zentraly. The repository owner is zentralySAU. Version 0.0.0.dev0 is local only.
+The distribution and import name are zentraly. The repository owner is zentralySAU.
+The first release is 0.1.0.
 Python 3.14 or newer is required. No Home Assistant dependency.
 
-## Installation and development
+## Installation
+
+```sh
+python3 -m pip install zentraly==0.1.0
+```
+
+## Development
 
 ```sh
 python3 -m venv .venv
@@ -100,27 +107,25 @@ close their own sessions. HA always supplies its shared session.
 - HA owns entity refresh scheduling, registry data, entity names, UI categories,
   unit constants, translations and timer presentation.
 
-## Release checklist (not yet authorized)
+## Releasing
 
-1. Confirm PyPI availability of the chosen name zentraly and finalize owner,
-   repository URL and project metadata.
-   The Python import name and distribution name may differ; keep imports stable.
-2. Review licensing and retained attribution. The extraction retains Apache-2.0.
-3. Choose a release version, update pyproject.toml and changelog, run both library
-   and HA tests, packaging checks and real-device acceptance tests.
-4. Publish the reviewed source repository, configure the `pypi` GitHub environment
-   with required approval, and register this workflow as a PyPI Trusted Publisher.
-5. Set repository variables `PYPI_PROJECT_NAME` and `PYPI_PUBLISH_ENABLED=true`.
-6. Tag the reviewed version as `v<version>`, then manually dispatch publish.yml
-   against that tag. The CI build is required before publication. Release version
-   0.0.0.dev0 is explicitly blocked. No credentials belong in this repository.
-7. Pin the published version in HA's manifest and regenerate HA derived dependency
-   files. Run HA CI before submitting the integration upstream.
+The GitHub Actions workflow `publish.yml` uses PyPI Trusted Publishing. The `pypi`
+environment requires release approval and accepts version tags. Repository
+variables are `PYPI_PROJECT_NAME=zentraly` and `PYPI_PUBLISH_ENABLED=true`.
 
-The workflows belong to the standalone zentralySAU/zentraly-python repository.
-Its push CI validates the library independently. PyPI publication is not configured
-yet and the provisional version is blocked by the release guard. A TestPyPI rehearsal is optional and must
-be configured separately before use; this workflow targets real PyPI.
+1. Update pyproject.toml and CHANGELOG.md for the reviewed release.
+2. Run library and HA tests, type/format checks, build and strict Twine validation.
+   Build into an empty output directory so previous versions are not uploaded.
+3. Commit the reviewed release and tag it as `v<version>`.
+4. Dispatch `publish.yml` manually against that tag. CI must pass before publishing;
+   approve the `pypi` environment deployment for the reviewed commit.
+5. Verify the PyPI files and install the published version in a clean environment.
+6. Pin the published release in HA, regenerate dependency files and validate CI.
+
+The release guard checks project name, repository URL and tag/version agreement;
+it rejects the former local version 0.0.0.dev0. No API token is stored in this
+repository. A TestPyPI rehearsal needs separate configuration; this workflow
+publishes to production PyPI. Never replace a version already uploaded to PyPI.
 
 ## Project status and ownership
 

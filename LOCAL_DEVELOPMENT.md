@@ -1,7 +1,7 @@
 # Development with the Zentraly workspace
 
 The library repository is `https://github.com/zentralySAU/zentraly-python`.
-Distribution and import name: `zentraly`. Version `0.0.0.dev0` is not published.
+Distribution and import name: `zentraly`. The first release version is `0.1.0`.
 
 Use independent sibling checkouts:
 
@@ -10,12 +10,14 @@ Use independent sibling checkouts:
   Zentraly/              # Home Assistant Core fork
   zentraly-python/       # This repository
   zentraly-documentos/   # Private Spanish manuals, Excel and context
+  brands/
+  home-assistant.io/
   zentraly.code-workspace
 ```
 
-Open `zentraly.code-workspace` in VS Code to work on all three. Each repository
+Open `zentraly.code-workspace` in VS Code to work on all five. Each repository
 retains its own history, branch, commits and remote. Never add the library or
-manuals to the Core repository. `brands` and `home-assistant.io` can be added later.
+manuals to the Core repository. `brands` and `home-assistant.io` are also included in the workspace.
 
 ## Python environments
 
@@ -43,8 +45,9 @@ UV_PROJECT_ENVIRONMENT=/home/vscode/.local/ha-venv uv run --no-sync python3 -m s
 The editable install points directly at this checkout. Moving it requires
 reinstalling it; virtual environments also need recreation after a path change.
 The machine-specific HA environment path above is not a package requirement.
-A fresh HA CI cannot install `zentraly==0.0.0.dev0` from PyPI. Keep the extraction
-PR in draft until publication, a final version pin and generated requirements.
+Keep the HA extraction PR in draft until the release is available from PyPI, its
+manifest pins that version and the generated dependency files are included.
+An editable install is useful for development but cannot validate PyPI delivery.
 
 ## Ownership and contracts
 
