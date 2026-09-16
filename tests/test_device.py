@@ -5,11 +5,100 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from zentraly import create_device
+from zentraly import ZentralyDeviceInfo, create_device
 from zentraly.client import ZentralyApi
 from zentraly.device_classes.sensor.api import ZentralySensorApi
 from zentraly.device_classes.types import ZentralyOutputType
 from zentraly.exceptions import ZentralyConnectionBusyError
+
+
+@pytest.mark.parametrize(
+    ("firmware", "expected"),
+    [("1.2.3", "1.2.3"), (123, None), (None, None)],
+)
+async def test_read_device_info(
+    firmware: str | int | None, expected: str | None
+) -> None:
+    """Decode versions independently and keep protocol details in the library."""
+    api = ZentralyApi("192.168.1.42", 80, "password", "ZTTIN0100000001")
+    api._set_connected(True)
+    device = create_device(api, api.device_id, "aa")
+    assert device.supports_device_info
+    assert device.channel_endpoints == (1,)
+    with patch.object(
+        api,
+        "async_execute_command",
+        side_effect=[
+            (
+                7,
+                {
+                    "cmd": "readAttr",
+                    "rid": 7,
+                    "status": 200,
+                    "attrs": [{"id": 2, "val": firmware}],
+                },
+            ),
+            (
+                8,
+                {
+                    "cmd": "readAttr",
+                    "rid": 8,
+                    "status": 200,
+                    "attrs": [{"id": 3, "val": "2.0"}],
+                },
+            ),
+        ],
+    ) as execute:
+        info = await device.async_get_device_info()
+    assert info == ZentralyDeviceInfo(
+        firmware_version=expected,
+        hardware_version="2.0",
+    )
+    firmware_command = execute.call_args_list[0].args[0](7)
+    hardware_command = execute.call_args_list[1].args[0](8)
+    assert firmware_command["mac"] == "aa"
+    assert firmware_command["cluster"] == 65000
+    assert firmware_command["attrs"][0]["id"] == 2
+    assert hardware_command["attrs"][0]["id"] == 3
+
+
+async def test_device_info_timeout() -> None:
+    """A timed-out field does not prevent reading the other version."""
+    api = ZentralyApi("192.168.1.42", 80, "password", "ZTTIN0100000001")
+    api._set_connected(True)
+    device = create_device(api, api.device_id, "aa")
+    with patch.object(
+        api,
+        "async_execute_command",
+        side_effect=[
+            None,
+            (
+                8,
+                {
+                    "cmd": "readAttr",
+                    "rid": 8,
+                    "status": 200,
+                    "attrs": [{"id": 3, "val": "2.0"}],
+                },
+            ),
+        ],
+    ):
+        assert await device.async_get_device_info() == ZentralyDeviceInfo(
+            hardware_version="2.0"
+        )
+
+
+async def test_device_info_offline_and_unsupported() -> None:
+    """Offline devices and models without version commands require no requests."""
+    api = ZentralyApi("192.168.1.42", 80, "password", "ZTTIN0100000001")
+    device = create_device(api, api.device_id, "aa")
+    with patch.object(api, "async_execute_command") as execute:
+        assert await device.async_get_device_info() == ZentralyDeviceInfo()
+        api._set_connected(True)
+        device.commands = MagicMock(spec=[])
+        assert not device.supports_device_info
+        assert await device.async_get_device_info() == ZentralyDeviceInfo()
+    execute.assert_not_awaited()
 
 
 async def test_saturation_preserves_device_availability() -> None:

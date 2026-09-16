@@ -1,7 +1,7 @@
 """Public Zentraly client, capability APIs, model helpers and errors."""
 
 from .client import ZentralyApi
-from .device import ZentralyDevice
+from .device import ZentralyDevice, ZentralyDeviceInfo
 from .device_classes.binary_sensor.api import ZentralyBinarySensorApi
 from .device_classes.binary_sensor.capabilities import BinarySensorCapability
 from .device_classes.button.api import ZentralyButtonApi
@@ -65,6 +65,7 @@ __all__ = [
     "ZentralyConnectionBusyError",
     "ZentralyConnectionError",
     "ZentralyDevice",
+    "ZentralyDeviceInfo",
     "ZentralyInvalidResponseError",
     "ZentralyNumberApi",
     "ZentralyOutputType",

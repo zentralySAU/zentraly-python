@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.1 — 2026-09-16
+
+- Add public device information reads and immutable ZentralyDeviceInfo results.
+- Keep protocol construction and version parsing inside the library.
+- Expose channel_endpoints as public device metadata.
+- Preserve existing commands, units, transport and capability APIs.
+
 ## 0.1.0 — 2026-09-16
 
 - Extract Zentraly transport, client, commands, device catalog, runtime and

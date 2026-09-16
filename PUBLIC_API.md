@@ -120,3 +120,18 @@ HA imports these root exports to instantiate APIs, inspect capabilities, validat
 topology and translate errors. Entities, DeviceInfo, config flow, UI units,
 categories/translations and refresh scheduling stay in HA. The package runs with
 asyncio/aiohttp alone. Concrete models remain independent in `devices/`.
+
+## Device information and endpoints
+
+`ZentralyDevice.supports_device_info` indicates whether at least one version can
+be read. `await device.async_get_device_info()` returns `ZentralyDeviceInfo`,
+a frozen result with optional `firmware_version` and `hardware_version` strings.
+Unsupported, disconnected or malformed readings are `None`; a valid sibling
+field is still returned. Connection-busy errors propagate as before. The method
+does not change cached version properties: callers decide how to retain and
+publish last-known values. Callers schedule refreshes; the library handles
+builders, RID correlation and parsers.
+
+`device.channel_endpoints` is the tuple of supported channel endpoints. It is
+model metadata and supports any number of channels. Existing public factories
+and capability APIs remain compatible.

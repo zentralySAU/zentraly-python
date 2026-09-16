@@ -23,6 +23,14 @@ _LOGGER = logging.getLogger(__name__)
 type ActionStateListener = Callable[[dict[object, Any]], None]
 
 
+@dataclass(frozen=True, slots=True)
+class ZentralyDeviceInfo:
+    """Version readings; None means unsupported or unavailable."""
+
+    firmware_version: str | None = None
+    hardware_version: str | None = None
+
+
 @dataclass(slots=True)
 class ZentralyDevice:
     """Runtime representation of a Zentraly device."""
@@ -46,6 +54,50 @@ class ZentralyDevice:
     _state_listeners: set[Callable[[], None]] = field(default_factory=set, init=False)
     _report_listeners: set[ReportListener] = field(default_factory=set, init=False)
     _remove_report_listener: Callable[[], None] | None = field(default=None, init=False)
+
+    @property
+    def channel_endpoints(self) -> tuple[int, ...]:
+        """Return the model's independently addressable channels."""
+        return self.commands.channel_endpoints
+
+    @property
+    def supports_device_info(self) -> bool:
+        """Return whether the model can read either version field."""
+        return any(
+            callable(getattr(self.commands, f"build_read_{field}_version", None))
+            and callable(
+                getattr(self.commands, f"parse_{field}_version_response", None)
+            )
+            for field in ("firmware", "hardware")
+        )
+
+    async def async_get_device_info(self) -> ZentralyDeviceInfo:
+        """Read supported versions without exposing protocol messages to callers.
+
+        Each field is independent: a missing or malformed reading returns None
+        for that field. Cached version properties are left for the caller to update.
+        """
+        if not self.connected:
+            return ZentralyDeviceInfo()
+        firmware = await self._async_read_version("firmware")
+        hardware = await self._async_read_version("hardware")
+        return ZentralyDeviceInfo(firmware, hardware)
+
+    async def _async_read_version(self, field: str) -> str | None:
+        """Build and interpret a model-specific version request."""
+        builder = getattr(self.commands, f"build_read_{field}_version", None)
+        parser = getattr(self.commands, f"parse_{field}_version_response", None)
+        if not callable(builder) or not callable(parser):
+            return None
+        result = await self.async_execute_command(lambda rid: builder(rid, self.mac))
+        if result is None:
+            return None
+        rid, response = result
+        try:
+            value = parser(response, rid)
+        except TypeError, ValueError:
+            return None
+        return value if isinstance(value, str) else None
 
     @property
     def available(self) -> bool:
