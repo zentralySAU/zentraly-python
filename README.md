@@ -1,7 +1,7 @@
 # Zentraly Python client (local development)
 
 Independent asynchronous device library extracted from the Zentraly integration.
-The distribution and import name are zentraly; the owner is not finalized. Version 0.0.0.dev0 is local only.
+The distribution and import name are zentraly. The repository owner is zentralySAU. Version 0.0.0.dev0 is local only.
 Python 3.14 or newer is required. No Home Assistant dependency.
 
 ## Installation and development
@@ -117,9 +117,9 @@ close their own sessions. HA always supplies its shared session.
 7. Pin the published version in HA's manifest and regenerate HA derived dependency
    files. Run HA CI before submitting the integration upstream.
 
-The workflows are prepared for the future standalone repository. While this
-folder is ignored inside the HA checkout they do not run on GitHub. There is no
-remote or PyPI project configured yet. A TestPyPI rehearsal is optional and must
+The workflows belong to the standalone zentralySAU/zentraly-python repository.
+Its push CI validates the library independently. PyPI publication is not configured
+yet and the provisional version is blocked by the release guard. A TestPyPI rehearsal is optional and must
 be configured separately before use; this workflow targets real PyPI.
 
 ## Project status and ownership
@@ -128,10 +128,10 @@ The user has reported successful physical-device tests after extraction; model
 and firmware coverage were not specified. Automated evidence remains 190 HA
 cases and 86 standalone library cases, also verified against built wheels.
 
-A move to a new GitHub account is planned before publication. The existing HA
-fork will be transferred, while this independent Git history will be published
-in a separate library repository. Documentation/Excel/backups will have a
-separate home; ignored files are not included in a Core push.
+The HA fork belongs to zentralySAU. This library lives in the separate
+zentraly-python repository; its sibling zentraly-documentos contains private
+documentation and the Excel. Neither is included in a Core push. See
+LOCAL_DEVELOPMENT.md for the multi-repository workspace and editable installation.
 
 Root imports, results, errors, units and listener/session lifecycle are documented
 in PUBLIC_API.md. Existing module imports remain available in this change.

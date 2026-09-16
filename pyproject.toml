@@ -13,6 +13,10 @@ license-files = ["LICENSE", "NOTICE"]
 dependencies = ["aiohttp>=3.13,<4"]
 classifiers = ["Programming Language :: Python :: 3", "Programming Language :: Python :: 3.14", "Framework :: AsyncIO"]
 
+[project.urls]
+Repository = "https://github.com/zentralySAU/zentraly-python"
+Issues = "https://github.com/zentralySAU/zentraly-python/issues"
+
 [project.optional-dependencies]
 test = ["pytest>=8", "pytest-asyncio>=1", "pytest-cov>=6"]
 dev = ["ruff", "mypy", "build", "twine", "pytest>=8", "pytest-asyncio>=1", "pytest-cov>=6"]
