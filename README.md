@@ -2,13 +2,13 @@
 
 Independent asynchronous device library extracted from the Zentraly integration.
 The distribution and import name are zentraly. The repository owner is zentralySAU.
-The first release is 0.1.0.
+The current release is 0.2.0.
 Python 3.14 or newer is required. No Home Assistant dependency.
 
 ## Installation
 
 ```sh
-python3 -m pip install zentraly==0.1.0
+python3 -m pip install zentraly==0.2.0
 ```
 
 ## Development
@@ -130,8 +130,10 @@ publishes to production PyPI. Never replace a version already uploaded to PyPI.
 ## Project status and ownership
 
 The user has reported successful physical-device tests after extraction; model
-and firmware coverage were not specified. Automated evidence remains 190 HA
-cases and 86 standalone library cases, also verified against built wheels.
+and firmware coverage were not specified. The 0.2.0 release adds nine device models and four capability APIs. The user
+confirmed physical-device testing of the new development. Automated validation
+is recorded by the release workflow, including tests against the built wheel
+without Home Assistant.
 
 The HA fork belongs to zentralySAU. This library lives in the separate
 zentraly-python repository; its sibling zentraly-documentos contains private

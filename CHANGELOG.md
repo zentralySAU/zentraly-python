@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 — 2026-10-01
 
 - Add independent models for ZTHZB, ZTHG2, ZTAAK, ZTTZB, ZTAAI, ZTMWZ,
   ZTBZB, ZTBZH and ZTEIE, including discovery and child validation.
