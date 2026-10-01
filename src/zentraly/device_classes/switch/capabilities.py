@@ -11,6 +11,7 @@ class SwitchCapability(Enum):
     CHILD_LOCK = "child_lock"
     ALWAYS_ON_DISPLAY = "always_on_display"
     ALWAYS_ON_LED = "always_on_led"
+    DISCONNECT_ON_ERROR = "disconnect_on_error"
 
     COMFORT_MODE = "comfort_mode"
     FORCED_MODE = "forced_mode"

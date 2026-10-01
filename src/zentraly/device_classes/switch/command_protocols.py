@@ -364,3 +364,36 @@ class TimerOffEnableCommands(Protocol):
         expected_rid: int,
     ) -> None:
         """Parse the automatic-shut-off-enable write response."""
+
+
+class DisconnectOnErrorCommands(Protocol):
+    """Commands for devices supporting disconnect-on-error setting."""
+
+    def build_read_disconnect_on_error(
+        self,
+        rid: int,
+        mac: str,
+    ) -> dict[str, Any]:
+        """Build the always-on-LED read command."""
+
+    def parse_disconnect_on_error_response(
+        self,
+        response: dict[str, Any],
+        expected_rid: int,
+    ) -> bool:
+        """Parse the always-on-LED response."""
+
+    def build_write_disconnect_on_error(
+        self,
+        rid: int,
+        mac: str,
+        enabled: bool,
+    ) -> dict[str, Any]:
+        """Build the always-on-LED write command."""
+
+    def parse_write_disconnect_on_error_response(
+        self,
+        response: dict[str, Any],
+        expected_rid: int,
+    ) -> None:
+        """Parse the always-on-LED write response."""

@@ -10,6 +10,7 @@ class SensorCapability(Enum):
     OUTPUT_TYPE = "output_type"
     RSSI = "rssi"
     WIFI_SIGNAL_POWER = "wifi_signal_power"
+    BATTERY_LEVEL = "battery_level"
 
     VOLTAGE = "voltage"
     CURRENT = "current"

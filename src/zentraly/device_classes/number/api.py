@@ -7,6 +7,8 @@ from ...exceptions import ZentralyInvalidResponseError, ZentralyValidationError
 from .capabilities import NumberCapability
 from .command_protocols import (
     AwayTemperatureCommands,
+    BoilerIgnitionDelayCommands,
+    BoilerShutdownDelayCommands,
     DisplayBrightnessCommands,
     HighPowerLimitCommands,
     HighVoltageLimitCommands,
@@ -441,5 +443,43 @@ class ZentralyNumberApi:
             capability=NumberCapability.DISPLAY_BRIGHTNESS,
             builder=commands.build_write_display_brightness,
             parser=commands.parse_write_display_brightness_response,
+            value=value,
+        )
+
+    async def async_get_boiler_ignition_delay(self) -> float | None:
+        """Read the boiler ignition delay setting."""
+        commands = cast(BoilerIgnitionDelayCommands, self._commands)
+        return await self._async_get_number_value(
+            capability=NumberCapability.BOILER_IGNITION_DELAY,
+            builder=commands.build_read_boiler_ignition_delay,
+            parser=commands.parse_boiler_ignition_delay_response,
+        )
+
+    async def async_set_boiler_ignition_delay(self, value: float) -> bool:
+        """Write the boiler ignition delay setting."""
+        commands = cast(BoilerIgnitionDelayCommands, self._commands)
+        return await self._async_set_number_value(
+            capability=NumberCapability.BOILER_IGNITION_DELAY,
+            builder=commands.build_write_boiler_ignition_delay,
+            parser=commands.parse_write_boiler_ignition_delay_response,
+            value=value,
+        )
+
+    async def async_get_boiler_shutdown_delay(self) -> float | None:
+        """Read the boiler shutdown delay setting."""
+        commands = cast(BoilerShutdownDelayCommands, self._commands)
+        return await self._async_get_number_value(
+            capability=NumberCapability.BOILER_SHUTDOWN_DELAY,
+            builder=commands.build_read_boiler_shutdown_delay,
+            parser=commands.parse_boiler_shutdown_delay_response,
+        )
+
+    async def async_set_boiler_shutdown_delay(self, value: float) -> bool:
+        """Write the boiler shutdown delay setting."""
+        commands = cast(BoilerShutdownDelayCommands, self._commands)
+        return await self._async_set_number_value(
+            capability=NumberCapability.BOILER_SHUTDOWN_DELAY,
+            builder=commands.build_write_boiler_shutdown_delay,
+            parser=commands.parse_write_boiler_shutdown_delay_response,
             value=value,
         )

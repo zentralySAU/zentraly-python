@@ -10,6 +10,7 @@ from .command_protocols import (
     AlwaysOnLedCommands,
     ChildLockCommands,
     ComfortModeCommands,
+    DisconnectOnErrorCommands,
     ForcedModeCommands,
     HighPowerProtectionCommands,
     HighVoltageProtectionCommands,
@@ -608,5 +609,39 @@ class ZentralySwitchApi:
             capability=SwitchCapability.TIMER_OFF_ENABLE,
             builder=commands.build_write_timer_off_enable,
             parser=commands.parse_write_timer_off_enable_response,
+            enabled=enabled,
+        )
+
+    async def async_get_disconnect_on_error(
+        self,
+    ) -> bool | None:
+        """Return the disconnect-on-error setting state."""
+
+        commands = cast(
+            DisconnectOnErrorCommands,
+            self._commands,
+        )
+
+        return await self._async_get_switch_value(
+            capability=SwitchCapability.DISCONNECT_ON_ERROR,
+            builder=commands.build_read_disconnect_on_error,
+            parser=commands.parse_disconnect_on_error_response,
+        )
+
+    async def async_set_disconnect_on_error(
+        self,
+        enabled: bool,
+    ) -> bool:
+        """Set the disconnect-on-error setting state."""
+
+        commands = cast(
+            DisconnectOnErrorCommands,
+            self._commands,
+        )
+
+        return await self._async_set_switch_value(
+            capability=SwitchCapability.DISCONNECT_ON_ERROR,
+            builder=commands.build_write_disconnect_on_error,
+            parser=commands.parse_write_disconnect_on_error_response,
             enabled=enabled,
         )

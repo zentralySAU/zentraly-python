@@ -14,6 +14,15 @@ class DeviceModel(Enum):
     ZTEIM = "zteim"
     ZTIKD = "ztikd"
     ZTIKS = "ztiks"
+    ZTHZB = "zthzb"
+    ZTHG2 = "zthg2"
+    ZTAAK = "ztaak"
+    ZTTZB = "zttzb"
+    ZTAAI = "ztaai"
+    ZTMWZ = "ztmwz"
+    ZTBZB = "ztbzb"
+    ZTBZH = "ztbzh"
+    ZTEIE = "zteie"
     UNKNOWN = "unknown"
 
 
@@ -24,7 +33,7 @@ class DeviceDefinition(TypedDict):
     commercial_name: str
     supports_zeroconf: bool
     allowed_child_models: frozenset[DeviceModel]
-    max_children: int
+    max_children: int | None
 
 
 DEVICE_PREFIXES: dict[str, DeviceDefinition] = {
@@ -77,6 +86,99 @@ DEVICE_PREFIXES: dict[str, DeviceDefinition] = {
     "ZTIKS": {
         "model": DeviceModel.ZTIKS,
         "commercial_name": "Smart Switch Kinetic Simple Wi-Fi",
+        "supports_zeroconf": True,
+        "allowed_child_models": frozenset(),
+        "max_children": 0,
+    },
+    "ZTHZB": {
+        "model": DeviceModel.ZTHZB,
+        "commercial_name": "Puerta de Enlace Zentraly Home",
+        "supports_zeroconf": True,
+        "allowed_child_models": frozenset(
+            {
+                DeviceModel.ZTTWZ,
+                DeviceModel.ZTTZB,
+                DeviceModel.ZTBZB,
+                DeviceModel.ZTAAI,
+                DeviceModel.ZTBZH,
+                DeviceModel.ZTEIE,
+                DeviceModel.ZTMWZ,
+            }
+        ),
+        "max_children": None,
+    },
+    "ZTHG2": {
+        "model": DeviceModel.ZTHG2,
+        "commercial_name": "Puerta de Enlace ZH Plus",
+        "supports_zeroconf": True,
+        "allowed_child_models": frozenset(
+            {
+                DeviceModel.ZTTWZ,
+                DeviceModel.ZTTZB,
+                DeviceModel.ZTBZB,
+                DeviceModel.ZTAAI,
+                DeviceModel.ZTBZH,
+                DeviceModel.ZTEIE,
+                DeviceModel.ZTMWZ,
+            }
+        ),
+        "max_children": None,
+    },
+    "ZTAAK": {
+        "model": DeviceModel.ZTAAK,
+        "commercial_name": "Puerta de Enlace ZH Light",
+        "supports_zeroconf": True,
+        "allowed_child_models": frozenset(
+            {
+                DeviceModel.ZTTWZ,
+                DeviceModel.ZTTZB,
+                DeviceModel.ZTBZB,
+                DeviceModel.ZTAAI,
+                DeviceModel.ZTBZH,
+                DeviceModel.ZTEIE,
+                DeviceModel.ZTMWZ,
+            }
+        ),
+        "max_children": None,
+    },
+    "ZTTZB": {
+        "model": DeviceModel.ZTTZB,
+        "commercial_name": "Termostato Zentraly Home",
+        "supports_zeroconf": False,
+        "allowed_child_models": frozenset(),
+        "max_children": 0,
+    },
+    "ZTBZB": {
+        "model": DeviceModel.ZTBZB,
+        "commercial_name": "Módulo de Caldera Zentraly Home",
+        "supports_zeroconf": False,
+        "allowed_child_models": frozenset(),
+        "max_children": 0,
+    },
+    "ZTBZH": {
+        "model": DeviceModel.ZTBZH,
+        "commercial_name": "Módulo de Caldera ZH Mini",
+        "supports_zeroconf": False,
+        "allowed_child_models": frozenset(),
+        "max_children": 0,
+    },
+    "ZTAAI": {
+        "model": DeviceModel.ZTAAI,
+        "commercial_name": "Termostato Mini ZH",
+        "supports_zeroconf": False,
+        "allowed_child_models": frozenset(),
+        "max_children": 0,
+    },
+    "ZTEIE": {
+        "model": DeviceModel.ZTEIE,
+        "commercial_name": "Enchufe wifi zentraly home kinetic",
+        "supports_zeroconf": True,
+        "allowed_child_models": frozenset(),
+        "max_children": 0,
+    },
+    "ZTMWZ": {
+        "model": DeviceModel.ZTMWZ,
+        "commercial_name": "Termostato Mini Wi-Fi Zentraly Home",
         "supports_zeroconf": True,
         "allowed_child_models": frozenset(),
         "max_children": 0,
@@ -154,8 +256,8 @@ def is_allowed_child_device(
 
 def get_max_child_devices(
     device_id: str,
-) -> int:
-    """Return the maximum number of child devices."""
+) -> int | None:
+    """Return the child limit, or None when the parent has no limit."""
 
     device_info = get_device_definition(device_id)
 

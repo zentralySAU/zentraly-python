@@ -16,3 +16,5 @@ class NumberCapability(Enum):
     AWAY_TEMPERATURE = "away_temperature"
     TEMPERATURE_OFFSET = "temperature_offset"
     DISPLAY_BRIGHTNESS = "display_brightness"
+    BOILER_IGNITION_DELAY = "boiler_ignition_delay"
+    BOILER_SHUTDOWN_DELAY = "boiler_shutdown_delay"
