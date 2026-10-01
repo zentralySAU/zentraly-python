@@ -54,6 +54,26 @@ in this change; only the root is the long-term import contract.
 
 ## Lifecycle
 
+### Child limits and new settings (unreleased)
+
+`get_max_child_devices(device_id)` returns `int | None`: `None` means no limit
+imposed by the integration, `0` means no children, and positive integers are
+finite limits. Check parent/child compatibility separately with
+`is_allowed_child_device`; an unlimited count does not allow unknown models.
+Existing models keep their previous integer limits. Consumers supporting the new
+gateways must handle `None` before doing numeric comparisons.
+
+`ZentralySensorApi.async_get_battery_level()` returns an integer percentage from
+0 to 100 (or `None` if unavailable), without sentinel values or scaling.
+`ZentralyNumberApi.async_get_boiler_ignition_delay()` and
+`async_get_boiler_shutdown_delay()` return minutes; their matching setters accept
+whole minutes from 0 to 10. Zero has no special client-side behavior.
+`ZentralySwitchApi.async_get_disconnect_on_error()` and its matching setter use
+booleans. These configuration setters only write the selected parameter. They do
+not change operating mode, switch outputs or start client-side timers.
+
+### Connection lifecycle
+
 - `ZentralyApi(host, port, password, device_id, mac="", *, session=None)` creates
   a client without connecting. The caller supplies address/identity; the package
   does not perform mDNS discovery.

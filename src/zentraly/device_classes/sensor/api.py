@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, cast
 from ..types import ZentralyOutputType
 from .capabilities import SensorCapability
 from .command_protocols import (
+    BatteryLevelCommands,
     ChSetpointCommands,
     ChWaterPressureCommands,
     CurrentCommands,
@@ -455,4 +456,20 @@ class ZentralySensorApi:
             capability=SensorCapability.DHW_SETPOINT,
             builder=commands.build_read_dhw_setpoint,
             parser=commands.parse_dhw_setpoint_response,
+        )
+
+    async def async_get_battery_level(
+        self,
+    ) -> int | None:
+        """Return the current battery percentage."""
+
+        commands = cast(
+            BatteryLevelCommands,
+            self._device.commands,
+        )
+
+        return await self._async_get_integer_value(
+            capability=SensorCapability.BATTERY_LEVEL,
+            builder=commands.build_read_battery_level,
+            parser=commands.parse_battery_level_response,
         )

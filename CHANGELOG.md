@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- Add independent models for ZTHZB, ZTHG2, ZTAAK, ZTTZB, ZTAAI, ZTMWZ,
+  ZTBZB, ZTBZH and ZTEIE, including discovery and child validation.
+- Add battery percentage, boiler ignition/shutdown delay and disconnect-on-error
+  capability APIs. Configuration writes change only their own parameter.
+- Return `None` from `get_max_child_devices` for unlimited gateways. Consumers
+  must check for `None` before comparing child counts; existing limits retain
+  their integer values. This API extension requires a minor release during 0.x.
+- Keep battery polling and Wi-Fi signal behavior unchanged in this release work.
+
 ## 0.1.1 — 2026-09-16
 
 - Add public device information reads and immutable ZentralyDeviceInfo results.

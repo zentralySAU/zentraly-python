@@ -255,3 +255,21 @@ class DhwSetpointCommands(Protocol):
         expected_rid: int,
     ) -> float:
         """Parse the domestic hot water setpoint response."""
+
+
+class BatteryLevelCommands(Protocol):
+    """Commands for devices supporting battery percentage."""
+
+    def build_read_battery_level(
+        self,
+        rid: int,
+        mac: str,
+    ) -> dict[str, Any]:
+        """Build the battery percentage read command."""
+
+    def parse_battery_level_response(
+        self,
+        response: dict[str, Any],
+        expected_rid: int,
+    ) -> int:
+        """Parse the battery percentage response."""

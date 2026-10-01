@@ -239,3 +239,47 @@ class DisplayBrightnessCommands(Protocol):
         self, response: dict[str, Any], expected_rid: int
     ) -> None:
         """Validate the setting write response."""
+
+
+class BoilerIgnitionDelayCommands(Protocol):
+    """Commands for the boiler ignition delay setting."""
+
+    def build_read_boiler_ignition_delay(self, rid: int, mac: str) -> dict[str, Any]:
+        """Build the setting read command."""
+
+    def parse_boiler_ignition_delay_response(
+        self, response: dict[str, Any], expected_rid: int
+    ) -> float:
+        """Decode the setting in its native unit."""
+
+    def build_write_boiler_ignition_delay(
+        self, rid: int, mac: str, value: float
+    ) -> dict[str, Any]:
+        """Build the setting write command."""
+
+    def parse_write_boiler_ignition_delay_response(
+        self, response: dict[str, Any], expected_rid: int
+    ) -> None:
+        """Validate the setting write response."""
+
+
+class BoilerShutdownDelayCommands(Protocol):
+    """Commands for the boiler shutdown delay setting."""
+
+    def build_read_boiler_shutdown_delay(self, rid: int, mac: str) -> dict[str, Any]:
+        """Build the setting read command."""
+
+    def parse_boiler_shutdown_delay_response(
+        self, response: dict[str, Any], expected_rid: int
+    ) -> float:
+        """Decode the setting in its native unit."""
+
+    def build_write_boiler_shutdown_delay(
+        self, rid: int, mac: str, value: float
+    ) -> dict[str, Any]:
+        """Build the setting write command."""
+
+    def parse_write_boiler_shutdown_delay_response(
+        self, response: dict[str, Any], expected_rid: int
+    ) -> None:
+        """Validate the setting write response."""
