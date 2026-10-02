@@ -2,13 +2,13 @@
 
 Independent asynchronous device library extracted from the Zentraly integration.
 The distribution and import name are zentraly. The repository owner is zentralySAU.
-The current release is 0.2.0.
+The current release is 0.3.0.
 Python 3.14 or newer is required. No Home Assistant dependency.
 
 ## Installation
 
 ```sh
-python3 -m pip install zentraly==0.2.0
+python3 -m pip install zentraly==0.3.0
 ```
 
 ## Development

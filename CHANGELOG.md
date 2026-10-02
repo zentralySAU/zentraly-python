@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0 — 2026-10-02
+
+- Expose a per-model periodic polling policy, disabled for ZTTZB, ZTAAI, ZTHZB, ZTHG2 and ZTAAK.
+  Initial, reconnect and explicit reads remain supported.
+
 ## 0.2.0 — 2026-10-01
 
 - Add independent models for ZTHZB, ZTHG2, ZTAAK, ZTTZB, ZTAAI, ZTMWZ,
