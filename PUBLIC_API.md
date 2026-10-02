@@ -155,3 +155,13 @@ builders, RID correlation and parsers.
 `device.channel_endpoints` is the tuple of supported channel endpoints. It is
 model metadata and supports any number of channels. Existing public factories
 and capability APIs remain compatible.
+
+## Periodic polling policy
+
+`ZentralyDevice.supports_periodic_polling` exposes the model policy from the device
+catalog. Clients must not schedule recurring reads (including version metadata)
+when it is false. Initial reads, reconnection reads, explicit requests and writes
+remain supported, as do incoming reports. This policy does not affect the gateway
+connection keepalive. ZTTZB, ZTAAI, ZTHZB, ZTHG2 and ZTAAK disable periodic polling; all other current
+models enable it. The value is explicit model metadata, not inferred at runtime
+from the presence of a battery capability.

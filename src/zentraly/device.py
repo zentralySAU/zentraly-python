@@ -61,6 +61,14 @@ class ZentralyDevice:
         return self.commands.channel_endpoints
 
     @property
+    def supports_periodic_polling(self) -> bool:
+        """Return whether clients may schedule recurring reads for this model.
+
+        Explicit reads, connection initialization and reports remain supported.
+        """
+        return DEVICE_PREFIXES[self.device_model.name]["supports_periodic_polling"]
+
+    @property
     def supports_device_info(self) -> bool:
         """Return whether the model can read either version field."""
         return any(

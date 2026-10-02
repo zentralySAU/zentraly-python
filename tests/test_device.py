@@ -263,3 +263,22 @@ async def test_output_poll_notifies_shared_state() -> None:
         )
     listener.assert_called_once_with()
     remove()
+
+
+@pytest.mark.parametrize(
+    ("model", "expected"),
+    [
+        pytest.param("ZTTZB", False, id="battery-thermostat"),
+        pytest.param("ZTAAI", False, id="battery-mini"),
+        pytest.param("ZTTIN", True, id="mains-thermostat"),
+        pytest.param("ZTHG2", False, id="gateway-plus"),
+        pytest.param("ZTHZB", False, id="gateway-home"),
+        pytest.param("ZTAAK", False, id="gateway-light"),
+    ],
+)
+def test_periodic_polling_policy(model: str, expected: bool) -> None:
+    """Expose the model policy independently of connection and read support."""
+    api = ZentralyApi("192.168.1.42", 80, "password", model + "0100000001")
+    device = create_device(api, api.device_id, "aabbccddee11")
+    assert device.supports_periodic_polling is expected
+    assert device.supports_device_info

@@ -32,6 +32,7 @@ class DeviceDefinition(TypedDict):
     model: DeviceModel
     commercial_name: str
     supports_zeroconf: bool
+    supports_periodic_polling: bool
     allowed_child_models: frozenset[DeviceModel]
     max_children: int | None
 
@@ -41,6 +42,7 @@ DEVICE_PREFIXES: dict[str, DeviceDefinition] = {
         "model": DeviceModel.ZTTIN,
         "commercial_name": "Termostato Inalámbrico Wi-Fi",
         "supports_zeroconf": True,
+        "supports_periodic_polling": True,
         "allowed_child_models": frozenset(
             {
                 DeviceModel.ZTBIN,
@@ -52,6 +54,7 @@ DEVICE_PREFIXES: dict[str, DeviceDefinition] = {
         "model": DeviceModel.ZTBIN,
         "commercial_name": "Boiler Inalámbrico",
         "supports_zeroconf": False,
+        "supports_periodic_polling": True,
         "allowed_child_models": frozenset(),
         "max_children": 0,
     },
@@ -59,6 +62,7 @@ DEVICE_PREFIXES: dict[str, DeviceDefinition] = {
         "model": DeviceModel.ZTTWZ,
         "commercial_name": "Termostato Wi-Fi Zentraly Home",
         "supports_zeroconf": True,
+        "supports_periodic_polling": True,
         "allowed_child_models": frozenset(),
         "max_children": 0,
     },
@@ -66,6 +70,7 @@ DEVICE_PREFIXES: dict[str, DeviceDefinition] = {
         "model": DeviceModel.ZTREA,
         "commercial_name": "Radiador electrico",
         "supports_zeroconf": True,
+        "supports_periodic_polling": True,
         "allowed_child_models": frozenset(),
         "max_children": 0,
     },
@@ -73,6 +78,7 @@ DEVICE_PREFIXES: dict[str, DeviceDefinition] = {
         "model": DeviceModel.ZTEIM,
         "commercial_name": "Enchufe zentraly mini",
         "supports_zeroconf": True,
+        "supports_periodic_polling": True,
         "allowed_child_models": frozenset(),
         "max_children": 0,
     },
@@ -80,6 +86,7 @@ DEVICE_PREFIXES: dict[str, DeviceDefinition] = {
         "model": DeviceModel.ZTIKD,
         "commercial_name": "Smart Switch Kinetic dual Wi-Fi",
         "supports_zeroconf": True,
+        "supports_periodic_polling": True,
         "allowed_child_models": frozenset(),
         "max_children": 0,
     },
@@ -87,6 +94,7 @@ DEVICE_PREFIXES: dict[str, DeviceDefinition] = {
         "model": DeviceModel.ZTIKS,
         "commercial_name": "Smart Switch Kinetic Simple Wi-Fi",
         "supports_zeroconf": True,
+        "supports_periodic_polling": True,
         "allowed_child_models": frozenset(),
         "max_children": 0,
     },
@@ -94,6 +102,7 @@ DEVICE_PREFIXES: dict[str, DeviceDefinition] = {
         "model": DeviceModel.ZTHZB,
         "commercial_name": "Puerta de Enlace Zentraly Home",
         "supports_zeroconf": True,
+        "supports_periodic_polling": False,
         "allowed_child_models": frozenset(
             {
                 DeviceModel.ZTTWZ,
@@ -111,6 +120,7 @@ DEVICE_PREFIXES: dict[str, DeviceDefinition] = {
         "model": DeviceModel.ZTHG2,
         "commercial_name": "Puerta de Enlace ZH Plus",
         "supports_zeroconf": True,
+        "supports_periodic_polling": False,
         "allowed_child_models": frozenset(
             {
                 DeviceModel.ZTTWZ,
@@ -128,6 +138,7 @@ DEVICE_PREFIXES: dict[str, DeviceDefinition] = {
         "model": DeviceModel.ZTAAK,
         "commercial_name": "Puerta de Enlace ZH Light",
         "supports_zeroconf": True,
+        "supports_periodic_polling": False,
         "allowed_child_models": frozenset(
             {
                 DeviceModel.ZTTWZ,
@@ -145,6 +156,7 @@ DEVICE_PREFIXES: dict[str, DeviceDefinition] = {
         "model": DeviceModel.ZTTZB,
         "commercial_name": "Termostato Zentraly Home",
         "supports_zeroconf": False,
+        "supports_periodic_polling": False,
         "allowed_child_models": frozenset(),
         "max_children": 0,
     },
@@ -152,6 +164,7 @@ DEVICE_PREFIXES: dict[str, DeviceDefinition] = {
         "model": DeviceModel.ZTBZB,
         "commercial_name": "Módulo de Caldera Zentraly Home",
         "supports_zeroconf": False,
+        "supports_periodic_polling": True,
         "allowed_child_models": frozenset(),
         "max_children": 0,
     },
@@ -159,6 +172,7 @@ DEVICE_PREFIXES: dict[str, DeviceDefinition] = {
         "model": DeviceModel.ZTBZH,
         "commercial_name": "Módulo de Caldera ZH Mini",
         "supports_zeroconf": False,
+        "supports_periodic_polling": True,
         "allowed_child_models": frozenset(),
         "max_children": 0,
     },
@@ -166,6 +180,7 @@ DEVICE_PREFIXES: dict[str, DeviceDefinition] = {
         "model": DeviceModel.ZTAAI,
         "commercial_name": "Termostato Mini ZH",
         "supports_zeroconf": False,
+        "supports_periodic_polling": False,
         "allowed_child_models": frozenset(),
         "max_children": 0,
     },
@@ -173,6 +188,7 @@ DEVICE_PREFIXES: dict[str, DeviceDefinition] = {
         "model": DeviceModel.ZTEIE,
         "commercial_name": "Enchufe wifi zentraly home kinetic",
         "supports_zeroconf": True,
+        "supports_periodic_polling": True,
         "allowed_child_models": frozenset(),
         "max_children": 0,
     },
@@ -180,6 +196,7 @@ DEVICE_PREFIXES: dict[str, DeviceDefinition] = {
         "model": DeviceModel.ZTMWZ,
         "commercial_name": "Termostato Mini Wi-Fi Zentraly Home",
         "supports_zeroconf": True,
+        "supports_periodic_polling": True,
         "allowed_child_models": frozenset(),
         "max_children": 0,
     },
