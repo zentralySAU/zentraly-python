@@ -1,6 +1,6 @@
 # Zentraly public Python API
 
-Distribution and import name: **zentraly**. This document defines the public consumer contract for release `0.1.0`.
+Distribution and import name: **zentraly**. This document defines the public consumer contract for release `0.4.0`.
 
 ## Supported imports
 
@@ -167,7 +167,7 @@ models enable it. The value is explicit model metadata, not inferred at runtime
 from the presence of a battery capability.
 
 
-## Independent capability prerequisites (unreleased)
+## Independent capability prerequisites (0.4.0)
 
 Client platforms do not need to construct sensor or switch entities to initialize
 shared prerequisites. Functional read/write APIs resolve their own prerequisites.

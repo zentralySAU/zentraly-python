@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 — 2026-10-28
+
+- Resolve capability prerequisites in the device runtime independently of client platforms.
+- Initialize display controls without switch entities and OpenTherm controls without sensor entities.
+- Share prerequisite reads per device and endpoint without introducing periodic library timers.
+- Preserve newer reports and confirmed writes over older responses; invalidate shared state on disconnection.
+- Expose public prerequisite refresh methods and document independent platform delivery.
+
 ## 0.3.0 — 2026-10-02
 
 - Expose a per-model periodic polling policy, disabled for ZTTZB, ZTAAI, ZTHZB, ZTHG2 and ZTAAK.
