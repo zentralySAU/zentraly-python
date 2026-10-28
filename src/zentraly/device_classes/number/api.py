@@ -161,6 +161,10 @@ class ZentralyNumberApi:
         if not self.supports(capability):
             return None
 
+        await self._device.async_refresh_dependencies(
+            capability, endpoint=self._endpoint
+        )
+
         result = await self._device.async_execute_command(
             lambda rid: builder(
                 rid,
@@ -199,6 +203,10 @@ class ZentralyNumberApi:
 
         if not self.supports(capability):
             raise ZentralyValidationError("Unsupported action")
+
+        await self._device.async_refresh_dependencies(
+            capability, endpoint=self._endpoint
+        )
 
         result = await self._device.async_execute_action_command(
             lambda rid: builder(

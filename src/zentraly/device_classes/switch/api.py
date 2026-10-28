@@ -155,11 +155,21 @@ class ZentralySwitchApi:
         if not self.supports(capability):
             return None
 
+        await self._device.async_refresh_dependencies(
+            capability, endpoint=self._endpoint
+        )
+
         if (
             capability in _OPENTHERM_CAPABILITIES
             and not self._device.opentherm_connected
         ):
             return None
+
+        if capability in self._device.commands.capability_dependencies.values():
+            value = await self._device.async_get_shared_state(
+                capability, endpoint=self._endpoint
+            )
+            return value if isinstance(value, bool) else None
 
         result = await self._device.async_execute_command(
             lambda rid: builder(
@@ -203,6 +213,10 @@ class ZentralySwitchApi:
 
         if not self.supports(capability):
             raise ZentralyValidationError("Unsupported action")
+
+        await self._device.async_refresh_dependencies(
+            capability, endpoint=self._endpoint
+        )
 
         if (
             capability in _OPENTHERM_CAPABILITIES

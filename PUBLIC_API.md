@@ -165,3 +165,47 @@ remain supported, as do incoming reports. This policy does not affect the gatewa
 connection keepalive. ZTTZB, ZTAAI, ZTHZB, ZTHG2 and ZTAAK disable periodic polling; all other current
 models enable it. The value is explicit model metadata, not inferred at runtime
 from the presence of a battery capability.
+
+
+## Independent capability prerequisites (unreleased)
+
+Client platforms do not need to construct sensor or switch entities to initialize
+shared prerequisites. Functional read/write APIs resolve their own prerequisites.
+Before evaluating cached availability, clients can call
+`await device.async_refresh_dependencies(capability, endpoint=1)`. This reads
+only the switch dependency declared by the model, or the output type needed by
+an OpenTherm capability. It never changes the device configuration.
+
+The runtime shares in-flight reads per device, endpoint and prerequisite. A
+successful result is reused for one second to coalesce adjacent entity updates;
+there is no background timer and this is not a polling interval. The caller
+continues to schedule updates and must respect `supports_periodic_polling`.
+Explicit sensor/switch reads request a fresh value, sharing an in-flight request
+if present. Reports and confirmed writes update the same state and supersede
+older in-flight responses. Failed output-type reads return `None` while retaining
+the last known output type, as before; failed switch prerequisites become unknown.
+
+`await device.async_refresh_shared_state()` optionally initializes all declared
+prerequisites for consumers that initialize devices before creating controls.
+`async_get_shared_state(capability, endpoint=1)` reads a declared prerequisite
+without constructing another functional API. Connection callbacks registered
+through the device invalidate shared state and pending reads on disconnection;
+consumers should subscribe for their runtime lifecycle. Removing the final state
+and report subscriptions also releases pending shared reads.
+
+The HA adapter requests prerequisites during each dependent entity's initial,
+reconnect and standard HA updates. Boiler-reset buttons refresh only their
+availability prerequisite; periodic updates never press a button. Reset-device
+and refresh-device-info buttons do not gain periodic reads. Battery and gateway
+models with periodic polling disabled retain initial, explicit and reconnect
+reads, plus reports. Firmware/hardware refresh rules are unchanged.
+
+### Delivery order for Home Assistant
+
+Publish a new library version first. Submit the standalone dependency bump, then
+the shared integration foundation. Once that common base is accepted, each
+platform addition can branch from the same accepted commit; no platform PR
+requires another platform PR. Each must include its own entity translations,
+platform-specific tests and a representative supported model if the initial
+thermostat lacks that platform. Shared helper changes belong in the foundation.
+Review feedback must be propagated to the complete integration when applicable.

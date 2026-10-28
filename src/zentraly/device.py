@@ -1,13 +1,16 @@
 """Models for the Zentraly integration."""
 
+import asyncio
 import logging
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from time import monotonic
 from typing import Any
 
 from .client import CommandResult, ConnectionStateListener, ReportListener, ZentralyApi
 from .commands.base import ZentralyDeviceCommands
 from .commands.protocol import ResponseStatus
+from .device_classes.dependencies import OPENTHERM_CAPABILITIES
 from .device_classes.sensor.capabilities import SensorCapability
 from .device_classes.types import ZentralyOutputType
 from .devices.catalog import DEVICE_PREFIXES, DeviceModel
@@ -44,6 +47,15 @@ class ZentralyDevice:
     output_type: ZentralyOutputType | None = None
     firmware_version: str | None = None
     hardware_version: str | None = None
+    _shared_reads: dict[tuple[int, object], asyncio.Task[None]] = field(
+        default_factory=dict, init=False
+    )
+    _shared_updated: dict[tuple[int, object], float] = field(
+        default_factory=dict, init=False
+    )
+    _shared_revisions: dict[tuple[int, object], int] = field(
+        default_factory=dict, init=False
+    )
     _responding: bool = field(default=True, init=False)
     _switch_states: dict[tuple[int, object], bool | None] = field(
         default_factory=dict, init=False
@@ -112,6 +124,132 @@ class ZentralyDevice:
         """Return whether the gateway and this device can communicate."""
         return self.connected and self._responding
 
+    async def async_refresh_dependencies(
+        self, capability: object, *, endpoint: int = 1
+    ) -> None:
+        """Read prerequisites without requiring entities for their capabilities.
+
+        Reads in progress and results less than one second old are shared across
+        callers. This coalesces a polling burst; it does not schedule any polling.
+        """
+        dependency = self.commands.capability_dependencies.get(capability)
+        if dependency is not None:
+            await self._async_refresh_shared_value(dependency, endpoint)
+        if capability in OPENTHERM_CAPABILITIES:
+            await self._async_refresh_shared_value(SensorCapability.OUTPUT_TYPE, 1)
+
+    async def async_refresh_shared_state(self) -> None:
+        """Initialize shared prerequisites on setup or reconnect, even without entities."""
+        for endpoint in self.channel_endpoints:
+            for dependency in set(self.commands.capability_dependencies.values()):
+                await self._async_refresh_shared_value(dependency, endpoint)
+        if self.supports(SensorCapability.OUTPUT_TYPE):
+            await self._async_refresh_shared_value(SensorCapability.OUTPUT_TYPE, 1)
+
+    async def _async_refresh_shared_value(
+        self, capability: object, endpoint: int, *, force: bool = False
+    ) -> None:
+        """Share a prerequisite read for this device and channel."""
+        if not self.connected or not self.supports(capability):
+            return
+        key = (endpoint, capability)
+        if (
+            not force
+            and self.available
+            and monotonic() - self._shared_updated.get(key, float("-inf")) < 1
+        ):
+            return
+        task = self._shared_reads.get(key)
+        if task is None:
+            task = asyncio.create_task(
+                self._async_read_shared_value(capability, endpoint)
+            )
+            self._shared_reads[key] = task
+        try:
+            await asyncio.shield(task)
+        except asyncio.CancelledError:
+            current = asyncio.current_task()
+            if current is not None and current.cancelling():
+                raise
+
+    async def _async_read_shared_value(self, capability: object, endpoint: int) -> None:
+        """Commit a read only if no newer report or confirmed write superseded it."""
+        key = (endpoint, capability)
+        revision = self._shared_revisions.get(key, 0)
+        try:
+            commands = self.commands.for_endpoint(endpoint)
+            name = getattr(capability, "value")
+            builder = getattr(commands, f"build_read_{name}")
+            parser = getattr(commands, f"parse_{name}_response")
+            result = await self.async_execute_command(
+                lambda rid: builder(rid, self.mac)
+            )
+            value = None
+            if result is not None:
+                rid, response = result
+                try:
+                    value = parser(response, rid)
+                except TypeError, ValueError:
+                    pass
+            if self._shared_revisions.get(key, 0) != revision:
+                return
+            if capability is SensorCapability.OUTPUT_TYPE:
+                if isinstance(value, ZentralyOutputType):
+                    self.set_output_type(value)
+                else:
+                    self._shared_updated.pop(key, None)
+            else:
+                self.set_switch_state(
+                    capability,
+                    value if isinstance(value, bool) else None,
+                    endpoint=endpoint,
+                )
+        finally:
+            if self._shared_reads.get(key) is asyncio.current_task():
+                self._shared_reads.pop(key, None)
+
+    def _record_shared_update(self, key: tuple[int, object]) -> None:
+        """Prevent an older in-flight reading from overwriting a confirmed update."""
+        self._shared_updated[key] = monotonic()
+        self._shared_revisions[key] = self._shared_revisions.get(key, 0) + 1
+
+    async def async_get_shared_state(
+        self, capability: object, *, endpoint: int = 1
+    ) -> bool | ZentralyOutputType | None:
+        """Read a declared prerequisite using the shared per-channel cache."""
+        if (
+            capability is not SensorCapability.OUTPUT_TYPE
+            and capability not in self.commands.capability_dependencies.values()
+        ):
+            raise ValueError("Capability is not a shared prerequisite")
+        if not self.connected:
+            return None
+        await self._async_refresh_shared_value(capability, endpoint, force=True)
+        if capability is SensorCapability.OUTPUT_TYPE:
+            return (
+                self.output_type
+                if (endpoint, capability) in self._shared_updated
+                else None
+            )
+        return self._switch_states.get((endpoint, capability))
+
+    def invalidate_shared_state(self) -> None:
+        """Discard prerequisite readings and requests from a previous connection."""
+        if (
+            not self._shared_reads
+            and not self._shared_updated
+            and not self._switch_states
+            and self.output_type is None
+        ):
+            return
+        for task in self._shared_reads.values():
+            task.cancel()
+        self._shared_reads.clear()
+        self._shared_updated.clear()
+        self._switch_states.clear()
+        self.output_type = None
+        self._notify_state()
+
     def capability_enabled(self, capability: object, *, endpoint: int = 1) -> bool:
         """Evaluate the model's switch dependency for a control."""
         dependency = self.commands.capability_dependencies.get(capability)
@@ -127,13 +265,19 @@ class ZentralyDevice:
         if capability not in self.commands.capability_dependencies.values():
             return
         key = (endpoint, capability)
+        self._record_shared_update(key)
+        if value is None:
+            self._shared_updated.pop(key, None)
         if self._switch_states.get(key) is value:
             return
         self._switch_states[key] = value
         self._notify_state()
 
-    def set_output_type(self, value: ZentralyOutputType) -> None:
+    def set_output_type(self, value: ZentralyOutputType | None) -> None:
         """Update shared output state and notify dependent entities."""
+        self._record_shared_update((1, SensorCapability.OUTPUT_TYPE))
+        if value is None:
+            self._shared_updated.pop((1, SensorCapability.OUTPUT_TYPE), None)
         if self.output_type is value:
             return
         self.output_type = value
@@ -190,6 +334,7 @@ class ZentralyDevice:
         ):
             self._remove_report_listener()
             self._remove_report_listener = None
+            self.invalidate_shared_state()
 
     def _handle_report(self, report_data: list[dict[str, Any]]) -> None:
         """Apply shared state before dispatching capability updates."""
@@ -288,7 +433,12 @@ class ZentralyDevice:
     ) -> Callable[[], None]:
         """Register a shared connection-state listener."""
 
-        return self.api.add_connection_state_listener(listener)
+        def connection_changed(connected: bool) -> None:
+            if not connected:
+                self.invalidate_shared_state()
+            listener(connected)
+
+        return self.api.add_connection_state_listener(connection_changed)
 
     def add_report_listener(
         self,

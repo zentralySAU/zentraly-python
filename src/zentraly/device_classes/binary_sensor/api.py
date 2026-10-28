@@ -133,6 +133,8 @@ class ZentralyBinarySensorApi:
         if not self.supports(capability):
             return None
 
+        await self._device.async_refresh_dependencies(capability)
+
         if (
             capability in _OPENTHERM_CAPABILITIES
             and not self._device.opentherm_connected
