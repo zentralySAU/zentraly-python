@@ -205,6 +205,10 @@ class ZentralySelectApi:
         if not self.supports(SelectCapability.OPERATION_MODE):
             return None
 
+        await self._device.async_refresh_dependencies(
+            SelectCapability.OPERATION_MODE, endpoint=self._endpoint
+        )
+
         commands = cast(
             OperationModeCommands,
             self._commands,
@@ -244,6 +248,10 @@ class ZentralySelectApi:
 
         if not self.supports(SelectCapability.OPERATION_MODE):
             raise ZentralyValidationError("Unsupported action")
+
+        await self._device.async_refresh_dependencies(
+            SelectCapability.OPERATION_MODE, endpoint=self._endpoint
+        )
 
         if not self.is_option_writable(
             SelectCapability.OPERATION_MODE,
@@ -285,6 +293,10 @@ class ZentralySelectApi:
         if not self.supports(SelectCapability.DISPLAY_MODE):
             return None
 
+        await self._device.async_refresh_dependencies(
+            SelectCapability.DISPLAY_MODE, endpoint=self._endpoint
+        )
+
         commands = cast(
             DisplayModeCommands,
             self._commands,
@@ -324,6 +336,10 @@ class ZentralySelectApi:
 
         if not self.supports(SelectCapability.DISPLAY_MODE):
             raise ZentralyValidationError("Unsupported action")
+
+        await self._device.async_refresh_dependencies(
+            SelectCapability.DISPLAY_MODE, endpoint=self._endpoint
+        )
 
         if not self.is_option_writable(
             SelectCapability.DISPLAY_MODE,

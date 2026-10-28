@@ -17,7 +17,6 @@ from .command_protocols import (
     ErrorIdCommands,
     FeedTemperatureCommands,
     ModulationLevelCommands,
-    OutputTypeCommands,
     PowerCommands,
     VoltageCommands,
     WifiSignalPowerCommands,
@@ -145,6 +144,8 @@ class ZentralySensorApi:
         if not self.supports(capability):
             return None
 
+        await self._device.async_refresh_dependencies(capability)
+
         result = await self._device.async_execute_command(
             lambda rid: builder(
                 rid,
@@ -182,6 +183,8 @@ class ZentralySensorApi:
 
         if not self.supports(capability):
             return None
+
+        await self._device.async_refresh_dependencies(capability)
 
         result = await self._device.async_execute_command(
             lambda rid: builder(
@@ -230,41 +233,8 @@ class ZentralySensorApi:
     ) -> ZentralyOutputType | None:
         """Return the current device output type."""
 
-        if not self.supports(SensorCapability.OUTPUT_TYPE):
-            return None
-
-        commands = cast(
-            OutputTypeCommands,
-            self._device.commands,
-        )
-
-        result = await self._device.async_execute_command(
-            lambda rid: commands.build_read_output_type(
-                rid,
-                self._device.mac,
-            )
-        )
-
-        if result is None:
-            return None
-
-        rid, response = result
-
-        try:
-            value = commands.parse_output_type_response(
-                response,
-                rid,
-            )
-
-        except TypeError, ValueError:
-            return None
-
-        if not isinstance(value, ZentralyOutputType):
-            return None
-
-        self._device.set_output_type(value)
-
-        return value
+        value = await self._device.async_get_shared_state(SensorCapability.OUTPUT_TYPE)
+        return value if isinstance(value, ZentralyOutputType) else None
 
     async def async_get_wifi_signal_power(
         self,
