@@ -1,6 +1,6 @@
 # Zentraly public Python API
 
-Distribution and import name: **zentraly**. This document defines the public consumer contract for release `0.4.0`.
+Distribution and import name: **zentraly**. This document defines the public consumer contract for release `0.4.1`.
 
 ## Supported imports
 
@@ -149,7 +149,9 @@ a frozen result with optional `firmware_version` and `hardware_version` strings.
 Unsupported, disconnected or malformed readings are `None`; a valid sibling
 field is still returned. Connection-busy errors propagate as before. The method
 does not change cached version properties: callers decide how to retain and
-publish last-known values. Callers schedule refreshes; the library handles
+publish last-known values. Optional version reads do not change per-device
+reachability; connection loss still makes the device unavailable. Callers schedule
+refreshes; the library handles
 builders, RID correlation and parsers.
 
 `device.channel_endpoints` is the tuple of supported channel endpoints. It is

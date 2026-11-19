@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1 — 2026-11-19
+
+- Keep optional hardware/firmware reads independent of device reachability, so a missing version response does not make working entities unavailable.
+- Preserve cached version ownership and independent partial results; normal reads, reports, and connection loss retain their existing availability behavior.
+
 ## 0.4.0 — 2026-10-28
 
 - Resolve capability prerequisites in the device runtime independently of client platforms.

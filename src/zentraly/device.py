@@ -109,7 +109,10 @@ class ZentralyDevice:
         parser = getattr(self.commands, f"parse_{field}_version_response", None)
         if not callable(builder) or not callable(parser):
             return None
-        result = await self.async_execute_command(lambda rid: builder(rid, self.mac))
+        # Optional metadata does not determine whether the device is responding.
+        result = await self.api.async_execute_command(
+            lambda rid: builder(rid, self.mac)
+        )
         if result is None:
             return None
         rid, response = result

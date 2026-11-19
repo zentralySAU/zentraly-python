@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from zentraly import ZentralyDeviceInfo, create_device
-from zentraly.client import ZentralyApi
+from zentraly.client import CommandResult, ZentralyApi
 from zentraly.device_classes.sensor.api import ZentralySensorApi
 from zentraly.device_classes.types import ZentralyOutputType
 from zentraly.exceptions import ZentralyConnectionBusyError
@@ -62,30 +62,84 @@ async def test_read_device_info(
     assert hardware_command["attrs"][0]["id"] == 3
 
 
-async def test_device_info_timeout() -> None:
-    """A timed-out field does not prevent reading the other version."""
+@pytest.mark.parametrize(
+    ("results", "expected"),
+    [
+        pytest.param(
+            (
+                None,
+                (
+                    8,
+                    {
+                        "cmd": "readAttr",
+                        "rid": 8,
+                        "status": 200,
+                        "attrs": [{"id": 3, "val": "2.0"}],
+                    },
+                ),
+            ),
+            ZentralyDeviceInfo(hardware_version="2.0"),
+            id="firmware-timeout",
+        ),
+        pytest.param(
+            (
+                (
+                    7,
+                    {
+                        "cmd": "readAttr",
+                        "rid": 7,
+                        "status": 200,
+                        "attrs": [{"id": 2, "val": "1.0"}],
+                    },
+                ),
+                None,
+            ),
+            ZentralyDeviceInfo(firmware_version="1.0"),
+            id="hardware-timeout",
+        ),
+        pytest.param((None, None), ZentralyDeviceInfo(), id="both-timeout"),
+    ],
+)
+async def test_device_info_timeout(
+    results: tuple[CommandResult | None, CommandResult | None],
+    expected: ZentralyDeviceInfo,
+) -> None:
+    """Optional timeouts preserve availability without transient state notifications."""
     api = ZentralyApi("192.168.1.42", 80, "password", "ZTTIN0100000001")
     api._set_connected(True)
     device = create_device(api, api.device_id, "aa")
+    listener = MagicMock()
+    remove = device.add_state_listener(listener)
+    with patch.object(api, "async_execute_command", side_effect=results):
+        assert await device.async_get_device_info() == expected
+    assert device.available
+    listener.assert_not_called()
+    remove()
+
+
+async def test_device_info_does_not_restore_unresponsive_device() -> None:
+    """Optional metadata cannot undo a reachability failure from a normal read."""
+    api = ZentralyApi("192.168.1.42", 80, "password", "ZTTIN0100000001")
+    api._set_connected(True)
+    device = create_device(api, api.device_id, "aa")
+    with patch.object(api, "async_execute_command", return_value=None):
+        await device.async_execute_command(lambda rid: {})
+    assert not device.available
     with patch.object(
         api,
         "async_execute_command",
-        side_effect=[
-            None,
-            (
-                8,
-                {
-                    "cmd": "readAttr",
-                    "rid": 8,
-                    "status": 200,
-                    "attrs": [{"id": 3, "val": "2.0"}],
-                },
-            ),
-        ],
+        return_value=(
+            7,
+            {
+                "cmd": "readAttr",
+                "rid": 7,
+                "status": 200,
+                "attrs": [{"id": 2, "val": "1.0"}, {"id": 3, "val": "2.0"}],
+            },
+        ),
     ):
-        assert await device.async_get_device_info() == ZentralyDeviceInfo(
-            hardware_version="2.0"
-        )
+        assert await device.async_get_device_info() == ZentralyDeviceInfo("1.0", "2.0")
+    assert not device.available
 
 
 async def test_device_info_offline_and_unsupported() -> None:
